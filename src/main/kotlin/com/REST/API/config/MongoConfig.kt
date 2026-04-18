@@ -11,7 +11,7 @@ class MongoConfig {
     @Bean
     fun mongoClient(): MongoClient {
         return MongoClients.create(
-            "mongodb+srv://dmirudull:cx6K7fwGuLBvOVQ9@kotlin-notes.ie79j4j.mongodb.net/Kotlin-Notes"
+            "mongodb+srv://Mirudull:huQBPCQDRlMthpTB@kotlin-notes.ie79j4j.mongodb.net/Kotlin-Notes"
         )
     }
 }

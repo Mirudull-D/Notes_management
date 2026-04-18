@@ -6,6 +6,5 @@ data class NotesRequest(
     val title:String,
     val content: String,
     val colour:Long,
-    val ownerId: ObjectId,
     val id :String?
 )
