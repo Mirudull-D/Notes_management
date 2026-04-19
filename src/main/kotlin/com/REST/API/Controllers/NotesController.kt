@@ -5,7 +5,9 @@ import com.REST.API.Dtos.NotesRequest
 import com.REST.API.Entities.Notes
 import com.REST.API.Repositories.NoteRepository
 import org.bson.types.ObjectId
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -53,4 +55,8 @@ class NotesController(
         ) }
     }
 
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: String){
+        noteRepository.deleteById(ObjectId(id))
+    }
 }
