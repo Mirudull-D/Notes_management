@@ -1,5 +1,6 @@
 package com.REST.API.Security
 
+import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
@@ -37,6 +38,38 @@ class JwtService(@Value("\${jwt.secret}") private val jwtSecret : String) {
 
     fun generateRefreshToken(userId: String):String{
         return generateToken(userId,"refresh",refreshTokenValidity)
+    }
+
+    fun validateAccessToken(token: String) : Boolean{
+        val claims = parseAllClaims(token)?: return false
+        val tokenType = claims["type"] ?: return false
+        return tokenType == "access"
+    }
+    fun validateRefreshToken(token: String) : Boolean{
+        val claims = parseAllClaims(token)?: return false
+        val tokenType = claims["type"] ?: return false
+        return tokenType == "refresh"
+    }
+
+    fun getUserIdFromToken(token: String): String? {
+        val rawToken = if(token.startsWith("Bearer ")){
+            token.removePrefix("Bearer ")
+        }else token
+        val claims = parseAllClaims(rawToken) ?:throw IllegalArgumentException("Invalid Token")
+
+        return claims.subject
+    }
+
+    private fun parseAllClaims(token: String): Claims?{
+        return try {
+            Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        }catch (e: Exception){
+            null
+        }
     }
 
 }
