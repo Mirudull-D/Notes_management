@@ -4,9 +4,10 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import java.util.Date
-import kotlin.io.encoding.Base64
 
+@Service
 class JwtService(@Value("\${jwt.secret}") private val jwtSecret : String) {
 
     private val secretKey = Keys.hmacShaKeyFor(java.util.Base64.getDecoder().decode(jwtSecret))
@@ -32,7 +33,7 @@ class JwtService(@Value("\${jwt.secret}") private val jwtSecret : String) {
             .compact()
     }
 
-    fun generateAccessToken(userId: String ):String{
+    fun generateAccessToken(userId: String):String{
         return generateToken(userId,"access",accessTokenValidity)
     }
 
