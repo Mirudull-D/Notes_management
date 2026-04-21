@@ -5,6 +5,7 @@ import com.REST.API.Dtos.NotesRequest
 import com.REST.API.Entities.Notes
 import com.REST.API.Repositories.NoteRepository
 import org.bson.types.ObjectId
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,13 +24,14 @@ class NotesController(
 
     @PostMapping()
     fun upsert(@RequestBody body: NotesRequest): NotesReponse{
+        val ownerId = (SecurityContextHolder.getContext().authentication?.principal  ) as String
         val note = noteRepository.save(Notes(
             id = body.id?.let { ObjectId(it) } ?: ObjectId.get(),
             title = body.title,
             content = body.content,
             colour = body.colour,
             createdAt = java.time.Instant.now(),
-            ownerId = ObjectId(),
+            ownerId = ObjectId(ownerId),
 
         ))
 
@@ -43,9 +45,8 @@ class NotesController(
     }
 
     @GetMapping
-    fun getAllNotes(
-        @RequestParam(required = true) ownerId: String
-    ): List<NotesReponse> {
+    fun getAllNotes(): List<NotesReponse> {
+        val ownerId = (SecurityContextHolder.getContext().authentication?.principal  ) as String
         return noteRepository.findByOwnerId(ObjectId(ownerId) ).map { notes -> NotesReponse(
             id = notes.id.toHexString(),
             title = notes.title,
@@ -57,6 +58,14 @@ class NotesController(
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: String){
-        noteRepository.deleteById(ObjectId(id))
+        val note = noteRepository.findById(ObjectId(id)).orElseThrow {
+            IllegalArgumentException("Note not found")
+        }
+        val ownerId = (SecurityContextHolder.getContext().authentication?.principal) as String
+        if(note.ownerId.toHexString() == ownerId){
+            noteRepository.deleteById(ObjectId(id))
+        }
+
+
     }
 }
