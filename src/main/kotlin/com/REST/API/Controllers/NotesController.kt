@@ -25,8 +25,14 @@ class NotesController(
     @PostMapping()
     fun upsert(@RequestBody body: NotesRequest): NotesReponse{
         val ownerId = (SecurityContextHolder.getContext().authentication?.principal  ) as String
+
+        val noteId = if (body.id.isNullOrBlank() || !ObjectId.isValid(body.id)) {
+            ObjectId()   // create new note
+        } else {
+            ObjectId(body.id)  // update existing
+        }
         val note = noteRepository.save(Notes(
-            id = body.id?.let { ObjectId(it) } ?: ObjectId.get(),
+            id = noteId,
             title = body.title,
             content = body.content,
             colour = body.colour,
